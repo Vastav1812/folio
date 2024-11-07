@@ -15,7 +15,6 @@ import {
   TIMELINE,
   TimelineNodeV2,
 } from "../../constants";
-import Image from "next/image";
 import { gsap, Linear } from "gsap";
 import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 import { IDesktop, isSmallScreen } from "pages";
@@ -69,18 +68,15 @@ const TimelineSection = ({ isDesktop }: IDesktop) => {
             {
               const { shouldDrawLine } = node;
 
-              // special handling for last checkpoint
               if (!next) {
                 lineY = y - separation / 2;
               }
 
-              // special handling for dot without line
               if (!shouldDrawLine) {
                 dotY = y;
               }
 
               if (shouldDrawLine) {
-                // TO DO fix syntax
                 svg = shouldDrawLine
                   ? `${drawLine(node, lineY, index, isDiverged)}${svg}`
                   : svg;
@@ -94,15 +90,12 @@ const TimelineSection = ({ isDesktop }: IDesktop) => {
           case NodeTypes.DIVERGE:
             {
               isDiverged = true;
-
               svg = `${drawBranch(node, y, index)}${svg}`;
             }
             break;
           case NodeTypes.CONVERGE:
             {
               isDiverged = false;
-
-              // Drawing CONVERGE branch with previous line and index
               svg = `${drawBranch(node, y - separation, index - 1)}${svg}`;
             }
             break;
@@ -131,12 +124,10 @@ const TimelineSection = ({ isDesktop }: IDesktop) => {
   ) => {
     const { next, alignment } = timelineNode as LinkedCheckpointNode;
 
-    // Diverging
     if (next && next.type === NodeTypes.DIVERGE) {
       y = y - curveLength + 6 * dotSize;
     }
 
-    // Converging
     if (next && next.type === NodeTypes.CONVERGE) {
       y = y + curveLength - 6 * dotSize;
     }
@@ -156,7 +147,7 @@ const TimelineSection = ({ isDesktop }: IDesktop) => {
     y: number,
     isDiverged: boolean
   ) => {
-    const { title, subtitle, size, image } = timelineNode;
+    const { title, subtitle, organization, date, size } = timelineNode;
 
     const offset = isDiverged ? rightBranchX : 10;
     const foreignObjectX = dotSize / 2 + 10 + offset;
@@ -164,15 +155,26 @@ const TimelineSection = ({ isDesktop }: IDesktop) => {
     const foreignObjectWidth = svgWidth - (dotSize / 2 + 10 + offset);
 
     const titleSizeClass = size === ItemSize.LARGE ? "text-6xl" : "text-2xl";
-    const logoString = image
-      ? `<img src='${image}' class='h-8 mb-2' loading='lazy' width='100' height='32' alt='${image}' />`
+
+    const orgString = organization
+      ? `<p class='text-lg text-gray-300 mt-1'>${organization}</p>`
       : "";
+
     const subtitleString = subtitle
       ? `<p class='text-xl mt-2 text-gray-200 font-medium tracking-wide'>${subtitle}</p>`
       : "";
 
+    const dateString = date
+      ? `<p class='text-md text-gray-400'>${date}</p>`
+      : "";
+
     return `<foreignObject x=${foreignObjectX} y=${foreignObjectY} width=${foreignObjectWidth} 
-        height=${separation}>${logoString}<p class='${titleSizeClass}'>${title}</p>${subtitleString}</foreignObject>`;
+        height=${separation}>
+        <p class='${titleSizeClass}'>${title}</p>
+        ${dateString}
+        ${orgString}
+        ${subtitleString}
+      </foreignObject>`;
   };
 
   const drawLine = (
@@ -188,12 +190,10 @@ const TimelineSection = ({ isDesktop }: IDesktop) => {
 
     const lineY = Math.abs(y + separation);
 
-    // Smaller line for Diverging
     if (isPrevDiverge) {
       return `<line class='str' x1=${leftBranchX} y1=${y} x2=${leftBranchX} y2=${lineY} stroke=${svgColor} /><line class='str line-${i}' x1=${leftBranchX} y1=${y} x2=${leftBranchX} y2=${lineY} stroke=${animColor} />`;
     }
 
-    // Smaller line for Converging
     if (isNextConverge) {
       return `<line class='str' x1=${leftBranchX} y1=${y} x2=${leftBranchX} y2=${lineY} stroke=${svgColor} /><line class='str line-${i}' x1=${leftBranchX} y1=${y} x2=${leftBranchX} y2=${lineY} stroke=${animColor} />`;
     }
@@ -202,7 +202,6 @@ const TimelineSection = ({ isDesktop }: IDesktop) => {
 
     let str = `<line class='str' x1=${lineX} y1=${y} x2=${lineX} y2=${lineY} stroke=${svgColor} /><line class='str line-${i}' x1=${lineX} y1=${y} x2=${lineX} y2=${lineY} stroke=${animColor} />`;
 
-    // If already diverged, draw parallel line to the existing line
     if (isDiverged) {
       const divergedLineX =
         alignment === Branch.LEFT ? rightBranchX : leftBranchX;
@@ -365,7 +364,6 @@ const TimelineSection = ({ isDesktop }: IDesktop) => {
 
   const setSlidesAnimation = (timeline: GSAPTimeline): void => {
     svgCheckpointItems.forEach((_, index) => {
-      // all except the first slide
       if (index !== 0) {
         timeline.fromTo(
           screenContainer.current.querySelector(`.slide-${index + 1}`),
@@ -374,7 +372,6 @@ const TimelineSection = ({ isDesktop }: IDesktop) => {
         );
       }
 
-      // all except the last slide
       if (index !== svgCheckpointItems.length - 1) {
         timeline.to(
           screenContainer.current.querySelector(`.slide-${index + 1}`),
@@ -401,9 +398,7 @@ const TimelineSection = ({ isDesktop }: IDesktop) => {
     let end: string;
     let additionalConfig = {};
 
-    // Slide as a trigger for Desktop
     if (isDesktop && !isSmallScreen()) {
-      // Animation for right side slides
       setSlidesAnimation(timeline);
 
       const platformHeight =
@@ -418,7 +413,6 @@ const TimelineSection = ({ isDesktop }: IDesktop) => {
       };
       duration = timeline.totalDuration() / svgCheckpointItems.length;
     } else {
-      // Clearing out the right side on mobile devices
       screenContainer.current.innerHTML = "";
 
       trigger = svgContainer.current;
@@ -439,13 +433,11 @@ const TimelineSection = ({ isDesktop }: IDesktop) => {
   };
 
   useEffect(() => {
-    // Generate and set the timeline svg
     setTimelineSvg(svgContainer, timelineSvg);
 
     const { timeline, duration }: { timeline: GSAPTimeline; duration: number } =
       initScrollTrigger();
 
-    // Animation for Timeline SVG
     animateTimeline(timeline, duration);
   }, [
     timelineSvg,
@@ -463,26 +455,9 @@ const TimelineSection = ({ isDesktop }: IDesktop) => {
       className="max-w-full h-96 shadow-xl bg-gray-800 rounded-2xl overflow-hidden"
       ref={screenContainer}
     >
-      <Image
-        className="w-full h-8"
-        src="/timeline/title-bar.svg"
-        alt="Title bar"
-        width={644}
-        height={34}
-      />
       <div className="relative h-full w-full -mt-2">
         <div className="absolute top-0 left-0 h-full w-full">
-          {svgCheckpointItems.map((item, index) => (
-            <Image
-              className={`w-full absolute top-0 object-cover slide-${
-                index + 1
-              }`}
-              src={(item as CheckpointNode).slideImage || ""}
-              key={`${(item as CheckpointNode).title}-${index}`}
-              alt="Timeline"
-              layout="fill"
-            />
-          ))}
+          {/* Images removed */}
         </div>
       </div>
     </div>

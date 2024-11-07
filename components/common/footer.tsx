@@ -38,13 +38,13 @@ const Footer = () => {
             target: "_blank",
             rel: "noreferrer",
           }}
-          href="/Ayush_Resume.pdf"
+          href="/Vastav_Resume.pdf"
         ></Button>
         <Button
           classes="ml-3"
-          type={ButtonTypes.WHITE}
+          type={ButtonTypes.PRIMARY}
           name="Let's Talk"
-          href={SOCIAL_LINKS.topmate}
+          href="mailto:vastav1812@example.com"
           otherProps={{
             target: "_blank",
             rel: "noreferrer",
@@ -52,7 +52,7 @@ const Footer = () => {
         ></Button>
       </div>
       <h2 className="text-center text-sm sm:text-base mt-8">
-        Designed and Developed with ❤️ by Ayush
+        Designed and Developed with ❤️ by Vastav
       </h2>
     </>
   );

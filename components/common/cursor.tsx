@@ -20,18 +20,18 @@ const Cursor = ({ isDesktop }: IDesktop) => {
 
   const onHover = () => {
     gsap.to(cursor.current, {
-      scale: 0.5,
+      scale: 5,
       duration: 0.3,
     });
     gsap.to(follower.current, {
-      scale: 3,
+      scale: 7,
       duration: 0.3,
     });
   };
 
   const onUnhover = () => {
     gsap.to(cursor.current, {
-      scale: 1,
+      scale: 5,
       duration: 0.3,
     });
     gsap.to(follower.current, {
