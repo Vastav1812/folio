@@ -46,7 +46,7 @@ export const SOCIAL_LINKS = {
   linkedin: "https://www.linkedin.com/in/vastav-bishnoi-8b6071223/",
   github: "https://github.com/Vastav1812",
   instagram: "https://www.instagram.com/vastav_11/",
-  LeetCode: "https://leetcode.com/u/vastav1812/",
+  leetcode: "https://leetcode.com/u/vastav1812/",
 };
 
 export interface IProject {

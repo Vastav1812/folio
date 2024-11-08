@@ -22,7 +22,6 @@ import SkillsSection from "@/components/home/skills";
 import CollaborationSection from "@/components/home/collaboration";
 import Footer from "@/components/common/footer";
 import TimelineSection from "@/components/home/timeline";
-import Scripts from "@/components/common/scripts";
 import AboutSection from "@/components/home/about";
 
 const DEBOUNCE_TIME = 100;
@@ -88,7 +87,6 @@ export default function Home() {
           <CollaborationSection />
           <Footer />
         </main>
-        <Scripts />
       </Layout>
     </>
   );
